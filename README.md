@@ -304,17 +304,22 @@ Isso permite que dados se propaguem pela rede mesmo sem infraestrutura central.
 
 # Contribuindo
 
-Contribuições são bem-vindas.
+Fork o projeto
 
-Você pode ajudar com:
+Crie uma branch (`git checkout -b feature/nova-modulacao`)
 
-* melhorias no modem
-* algoritmos de correção de erro
-* suporte a novos hardwares
-* documentação
-* testes de campo
+Faça commit (`git commit -m 'Add nova modulação'`)
 
-Abra uma **issue** ou envie um **pull request**.
+Push e abra um Pull Request
+
+Áreas onde precisamos de ajuda agora:
+
+* Implementação do `core/encoder.py` e `modem/modulator.py`
+* Testes de campo com rádio FM real
+* Documentação (`docs/protocol.md`)
+* Criação de imagens/diagramas
+
+Abra uma issue com a tag **help wanted** ou entre em contato!
 
 ---
 
@@ -344,7 +349,7 @@ O objetivo é evoluir o sistema para uma **rede de dados distribuída baseada em
 
 # Autor
 
-Projeto open source criado para experimentação em comunicação digital distribuída.
+Projeto open-source criado por armazen-nft.
 
-Contribuições da comunidade são encorajadas.
+Contribuições da comunidade são super bem-vindas!
 
