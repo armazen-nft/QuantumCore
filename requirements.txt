@@ -1,0 +1,6 @@
+numpy>=1.24.0
+scipy>=1.10.0
+sounddevice>=0.5.0
+reedsolo>=2.0.0
+rtlsdr>=0.2.0
+flask>=3.0.0
