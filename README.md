@@ -348,3 +348,9 @@ Projeto open source criado para experimentação em comunicação digital distri
 
 Contribuições da comunidade são encorajadas.
 
+
+---
+
+## Forks e propostas
+
+- `FORK_MELISSA.md`: proposta conceitual de comunicação por rádio e arquitetura distribuída para IA pública (visão de pesquisa, segurança e ética).
