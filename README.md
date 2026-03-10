@@ -3,348 +3,76 @@
 
 Um **Computador FM moderno, open source e peer-to-peer**, capaz de transmitir e receber dados digitais usando **áudio ou rádio FM**, inspirado no histórico sistema de distribuição de software via rádio dos anos 1980.
 
-O **OpenFM Computer** permite que qualquer computador se torne um **nó de transmissão e recepção de dados broadcast**, funcionando mesmo em ambientes **offline ou com infraestrutura mínima**.
+## Novidades implementadas
 
-Ele utiliza **modulação FSK, pacotes verificáveis e retransmissão P2P**, permitindo que arquivos e dados se propaguem entre nós de forma distribuída.
+- Bridge de áudio multiplataforma com abstração `AudioIO` e seleção de backend por SO ou parâmetro `--backend`.
+- Integração de transmissão SDR na CLI via `--mode tx --sdr --freq`.
+- Web monitor de peers com endpoint `/api/peers` e página HTML com atualização periódica.
+- Testes unitários de SDR TX e workflow de CI no GitHub Actions.
 
----
-
-# Visão geral
-
-O OpenFM Computer transforma áudio analógico em um **canal digital de dados**.
-
-Isso permite:
-
-* transmitir arquivos via áudio
-* enviar dados via rádio FM
-* criar redes P2P offline
-* distribuir software ou conhecimento por broadcast
-
-Cada nó da rede pode atuar como:
-
-* transmissor
-* receptor
-* cache
-* retransmissor
-
-Isso cria uma **rede distribuída baseada em broadcast**.
-
----
-
-# Principais características
-
-* transmissão de dados via áudio ou FM
-* modulação digital simples (FSK)
-* pacotes verificáveis com CRC
-* retransmissão peer-to-peer
-* funcionamento offline
-* arquitetura modular
-* código simples e auditável
-
-Possíveis usos:
-
-* distribuição offline de software
-* redes comunitárias
-* transmissão de dados em áreas remotas
-* pesquisa em comunicação digital
-* experimentos educacionais
-
----
-
-# Arquitetura do sistema
-
-Fluxo geral de transmissão:
+## Estrutura do repositório
 
 ```
-arquivo
- ↓
-compressão
- ↓
-segmentação em pacotes
- ↓
-codificação de erro
- ↓
-modulação FSK
- ↓
-áudio / rádio FM
- ↓
-demodulação
- ↓
-verificação
- ↓
-reconstrução do arquivo
+.
+├── audio/
+│   ├── audio_bridge.py
+│   ├── audio_tx.py
+│   ├── audio_rx.py
+│   └── backends/
+│       ├── sounddevice_backend.py
+│       ├── android_backend.py
+│       └── ios_backend.py
+├── modem/
+│   └── modulator.py
+├── network/
+│   ├── node.py
+│   └── peer_discovery.py
+├── sdr/
+│   └── sdr_tx.py
+├── web_monitor/
+│   ├── app.py
+│   └── static/index.html
+├── tests/
+│   └── test_sdr_tx.py
+├── examples/
+│   ├── send_file.py
+│   ├── receive_file.py
+│   └── p2p_node.py
+├── .github/workflows/test.yml
+├── cli.py
+└── requirements.txt
 ```
 
-Cada nó pode armazenar pacotes e **retransmiti-los para ampliar o alcance da rede**.
+## CLI
 
----
-
-# Estrutura do repositório
-
-```
-openfm-computer/
-
-README.md
-LICENSE
-requirements.txt
-
-/docs
-   protocol.md
-   architecture.md
-
-/core
-   encoder.py
-   decoder.py
-   packet.py
-   fec.py
-
-/modem
-   modulator.py
-   demodulator.py
-
-/network
-   node.py
-   peer_discovery.py
-   retransmit.py
-
-/audio
-   audio_tx.py
-   audio_rx.py
-
-/examples
-   send_file.py
-   receive_file.py
-   p2p_node.py
-```
-
----
-
-# Requisitos
-
-* Python 3.10+
-* NumPy
-* SciPy
-* SoundDevice
-
-Instalação:
+Transmissão por áudio:
 
 ```bash
-pip install -r requirements.txt
+python cli.py --mode tx --input arquivo.zip
 ```
 
----
-
-# Instalação
-
-Clone o repositório:
+Transmissão por SDR:
 
 ```bash
-git clone https://github.com/your-org/openfm-computer
-cd openfm-computer
+python cli.py --mode tx --sdr --freq 98.5 --input arquivo.zip
 ```
 
-Instale as dependências:
+Recepção por áudio:
 
 ```bash
-pip install -r requirements.txt
+python cli.py --mode rx --duration 5 --backend linux
 ```
 
----
+## Web monitor
 
-# Uso básico
-
-## Transmitir um arquivo
-
-```
-python examples/send_file.py arquivo.zip
+```bash
+python examples/p2p_node.py --web-monitor --port 8080
 ```
 
-Isso converterá o arquivo em pacotes e os transmitirá via áudio.
+Acesse `http://localhost:8080` para visualizar peers ativos.
 
----
+## Testes
 
-## Receber dados
-
+```bash
+python -m unittest discover -s tests -v
 ```
-python examples/receive_file.py
-```
-
-O sistema escutará o canal de áudio e reconstruirá os pacotes recebidos.
-
----
-
-## Executar um nó P2P
-
-```
-python examples/p2p_node.py
-```
-
-O nó irá:
-
-1. escutar transmissões
-2. armazenar pacotes
-3. retransmitir pacotes novos
-
-Criando assim uma rede **peer-to-peer por broadcast**.
-
----
-
-# Modos de operação
-
-## 1. Áudio direto
-
-Computador → alto-falante → microfone de outro computador.
-
-Ideal para testes.
-
----
-
-## 2. Rádio FM
-
-Computador → transmissor FM → rádio receptor → computador.
-
-Permite alcance de vários quilômetros.
-
----
-
-## 3. SDR (Software Defined Radio)
-
-Computador → SDR → antena.
-
-Modo mais flexível e avançado.
-
----
-
-# Protocolo de pacotes
-
-Cada transmissão é dividida em pacotes independentes.
-
-Formato básico:
-
-```
-HEADER
-VERSION
-NODE_ID
-PACKET_ID
-TOTAL_PACKETS
-PAYLOAD_SIZE
-CRC
-PAYLOAD
-```
-
-Tamanho padrão de payload:
-
-```
-256 bytes
-```
-
-Isso melhora robustez em canais ruidosos.
-
----
-
-# Modulação
-
-O sistema utiliza **FSK (Frequency Shift Keying)**.
-
-```
-bit 0 → 1200 Hz
-bit 1 → 2400 Hz
-baud → 1200
-```
-
-Esse esquema é:
-
-* simples
-* robusto
-* compatível com canais analógicos
-
----
-
-# Rede P2P
-
-Cada nó da rede executa um ciclo simples:
-
-```
-escutar sinal
-↓
-decodificar pacotes
-↓
-armazenar dados
-↓
-retransmitir pacotes novos
-```
-
-Isso permite que dados se propaguem pela rede mesmo sem infraestrutura central.
-
----
-
-# Possíveis aplicações
-
-* distribuição offline de software
-* redes comunitárias de dados
-* comunicação de emergência
-* experimentos acadêmicos
-* distribuição de datasets
-* transmissão educacional
-
----
-
-# Melhorias planejadas
-
-* Reed-Solomon error correction
-* LDPC forward error correction
-* modulação OFDM
-* suporte direto a SDR
-* criptografia de pacotes
-* compressão avançada
-* sincronização automática de nós
-* transmissão de grafos semânticos
-
----
-
-# Contribuindo
-
-Contribuições são bem-vindas.
-
-Você pode ajudar com:
-
-* melhorias no modem
-* algoritmos de correção de erro
-* suporte a novos hardwares
-* documentação
-* testes de campo
-
-Abra uma **issue** ou envie um **pull request**.
-
----
-
-# Licença
-
-Este projeto é distribuído sob a licença **MIT**.
-
-Veja o arquivo LICENSE para detalhes.
-
----
-
-# Inspirado por
-
-O OpenFM Computer é inspirado pelo histórico **Computador FM**, utilizado nos anos 1980 para transmitir programas de computador via rádio FM.
-
-A proposta deste projeto é **reviver e expandir essa ideia usando tecnologias modernas**, criando um sistema aberto de distribuição digital via broadcast.
-
----
-
-# Status do projeto
-
-Protótipo funcional.
-
-O objetivo é evoluir o sistema para uma **rede de dados distribuída baseada em broadcast e retransmissão peer-to-peer**.
-
----
-
-# Autor
-
-Projeto open source criado para experimentação em comunicação digital distribuída.
-
-Contribuições da comunidade são encorajadas.
-
